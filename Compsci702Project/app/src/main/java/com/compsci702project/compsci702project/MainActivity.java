@@ -35,6 +35,8 @@ public class MainActivity extends ActionBarActivity {
 
                 try {
                     listAllActivities();
+                    //getApplicationList();
+
                 } catch(PackageManager.NameNotFoundException e){}
 
                 //exit this application when the button is clicked
@@ -91,23 +93,31 @@ public class MainActivity extends ActionBarActivity {
     }
     //--Charindu --
     //This method gets the list of all apps installed in the device
-    //and logs system apps and non system apps separately
-    //Additionally logs permissions of those apps in a separate log
+    //and logs attributes of the apps
+    //Additionally logs permissions of those apps in a separate log -Doesn't work for now.
     public void getApplicationList() throws PackageManager.NameNotFoundException
     {
-        String tag1 = "nonSysAppList";//Tag string for the non system appList log
-        String tag2 = "sysAppList";//Tag string for the system appList log
-        String tag3 = "appPermissions"; //Tag string for the appPermissions log
+        String tag1 = "AppList";//Tag string for the non system appList log
+        //String tag2 = "sysAppList";//Tag string for the system appList log
+        //String tag3 = "appPermissions"; //Tag string for the appPermissions log
         String appName = " ";
         String pName = " ";
         String versionName = " ";
         String appPermissions = " ";
         int versionCode = 0;
         Drawable icon;
+        //gets the list of applications installed on device
         List<PackageInfo> packs = getPackageManager().getInstalledPackages(0);
         for(int i=0;i<packs.size();i++)
         {
             PackageInfo p = packs.get(i);
+            /*if (p.versionName == null)
+            {
+                //logs the non system app list
+                Log.i(tag2,p.applicationInfo.loadLabel(getPackageManager()).toString()
+                        + "\t" + p.packageName + "\t");
+                continue ;
+            }*/
             //assign the app info into corresponding variables
             appName = p.applicationInfo.loadLabel(getPackageManager()).toString();
             pName = p.packageName;
@@ -115,19 +125,12 @@ public class MainActivity extends ActionBarActivity {
             versionCode = p.versionCode;
             icon = p.applicationInfo.loadIcon(getPackageManager());
 
-            appPermissions = p.permissions.toString();
-
-            if ((p.versionName == null)) {
-                //logs the non system app list
-                Log.v(tag2,appName + "\t" + pName + "\t" + versionName + "\t" + versionCode);
-                continue ;
-            }
-
+            //appPermissions = p.permissions.toString();
             //logs the non system app list
             Log.v(tag1,appName + "\t" + pName + "\t" + versionName + "\t" + versionCode);
 
             //logs the permission list
-            Log.v(tag3,appPermissions);
+            //Log.v(tag3,appPermissions);
 
 
         }
