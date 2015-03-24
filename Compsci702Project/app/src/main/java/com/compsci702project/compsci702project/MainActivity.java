@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionGroupInfo;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -88,6 +89,50 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
+    //--Charindu --
+    //This method gets the list of all apps installed in the device
+    //and logs system apps and non system apps separately
+    //Additionally logs permissions of those apps in a separate log
+    public void getApplicationList() throws PackageManager.NameNotFoundException
+    {
+        String tag1 = "nonSysAppList";//Tag string for the non system appList log
+        String tag2 = "sysAppList";//Tag string for the system appList log
+        String tag3 = "appPermissions"; //Tag string for the appPermissions log
+        String appName = " ";
+        String pName = " ";
+        String versionName = " ";
+        String appPermissions = " ";
+        int versionCode = 0;
+        Drawable icon;
+        List<PackageInfo> packs = getPackageManager().getInstalledPackages(0);
+        for(int i=0;i<packs.size();i++)
+        {
+            PackageInfo p = packs.get(i);
+            //assign the app info into corresponding variables
+            appName = p.applicationInfo.loadLabel(getPackageManager()).toString();
+            pName = p.packageName;
+            versionName = p.versionName;
+            versionCode = p.versionCode;
+            icon = p.applicationInfo.loadIcon(getPackageManager());
+
+            appPermissions = p.permissions.toString();
+
+            if ((p.versionName == null)) {
+                //logs the non system app list
+                Log.v(tag2,appName + "\t" + pName + "\t" + versionName + "\t" + versionCode);
+                continue ;
+            }
+
+            //logs the non system app list
+            Log.v(tag1,appName + "\t" + pName + "\t" + versionName + "\t" + versionCode);
+
+            //logs the permission list
+            Log.v(tag3,appPermissions);
+
+
+        }
+    }
+
 
 
 }
