@@ -2,7 +2,9 @@ package com.compsci702project.compsci702project;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionGroupInfo;
@@ -34,7 +36,8 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
 
                 try {
-                    listAllActivities();
+                    //listAllActivities();
+                    getAppPermissions();
                     //getApplicationList();
 
                 } catch(PackageManager.NameNotFoundException e){}
@@ -95,8 +98,7 @@ public class MainActivity extends ActionBarActivity {
     //This method gets the list of all apps installed in the device
     //and logs attributes of the apps
     //Additionally logs permissions of those apps in a separate log -Doesn't work for now.
-    public void getApplicationList() throws PackageManager.NameNotFoundException
-    {
+    public void getApplicationList() throws PackageManager.NameNotFoundException {
         String tag1 = "AppList";//Tag string for the non system appList log
         //String tag2 = "sysAppList";//Tag string for the system appList log
         //String tag3 = "appPermissions"; //Tag string for the appPermissions log
@@ -108,8 +110,7 @@ public class MainActivity extends ActionBarActivity {
         Drawable icon;
         //gets the list of applications installed on device
         List<PackageInfo> packs = getPackageManager().getInstalledPackages(0);
-        for(int i=0;i<packs.size();i++)
-        {
+        for (int i = 0; i < packs.size(); i++) {
             PackageInfo p = packs.get(i);
             /*if (p.versionName == null)
             {
@@ -127,7 +128,7 @@ public class MainActivity extends ActionBarActivity {
 
             //appPermissions = p.permissions.toString();
             //logs the non system app list
-            Log.v(tag1,appName + "\t" + pName + "\t" + versionName + "\t" + versionCode);
+            Log.v(tag1, appName + "\t" + pName + "\t" + versionName + "\t" + versionCode);
 
             //logs the permission list
             //Log.v(tag3,appPermissions);
@@ -135,6 +136,60 @@ public class MainActivity extends ActionBarActivity {
 
         }
     }
+    public void getAppPermissions() throws PackageManager.NameNotFoundException
+    {
+        //String tag2 = "sysAppList";//Tag string for the system appList log
+        //String tag3 = "appPermissions"; //Tag string for the appPermissions log
+        String appName = " ";
+        String appPermissions = " ";
+
+        PackageManager pm = getPackageManager();
+        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        String tag = "AppPermissions";//Tag string for the non system appList log
+        for (ApplicationInfo applicationInfo : packages) {
+            Log.d("--------Application"," : " + applicationInfo.packageName +"----");
+
+            try {
+                PackageInfo packageInfo = pm.getPackageInfo(applicationInfo.packageName, PackageManager.GET_PERMISSIONS);
+
+                //Get Permissions
+                String[] requestedPermissions = packageInfo.requestedPermissions;
+
+                if(requestedPermissions != null) {
+                    for (int i = 0; i < requestedPermissions.length; i++) {
+                        Log.d(tag, requestedPermissions[i]);
+                    }
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /*//gets the list of applications installed on device
+        //List<PackageInfo> packs = getPackageManager().getInstalledPackages(0);
+        for(int i=0;i<packages.size();i++)
+        {
+            ApplicationInfo p = packages.get(i);
+            if (p.permission == null)
+            {
+                Log.i("No Permission", p.packageName.toString());
+                //logs the non system app list
+                continue ;
+            }
+            //assign the app info into corresponding variables
+            appPermissions = p.permission.toString();
+            //appName = p.applicationInfo.loadLabel(getPackageManager()).toString();
+            appName = p.packageName;
+            //appPermissions = p.permissions.toString();
+            //logs the non system app list
+            Log.v(tag,appName +":"+ "\t" + appPermissions);
+
+            //logs the permission list
+            //Log.v(tag3,appPermissions);*/
+
+
+    }
+
 
 
 
