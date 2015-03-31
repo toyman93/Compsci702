@@ -25,13 +25,18 @@ public class MainActivity extends ActionBarActivity {
     Context cont;
     private ContextWrapper _context = new ContextWrapper(cont);
 
-
+    // Initialize activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Set view as res.layout.activity_main.xml
         setContentView(R.layout.activity_main);
 
+        // Create button, attach it to button with id buttontest
         final Button button = (Button) findViewById(R.id.buttontest);
+
+        // Button listener
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
@@ -94,6 +99,7 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
+
     //--Charindu --
     //This method gets the list of all apps installed in the device
     //and logs attributes of the apps
@@ -136,32 +142,37 @@ public class MainActivity extends ActionBarActivity {
 
         }
     }
+
     public void getAppPermissions() throws PackageManager.NameNotFoundException
     {
         //String tag2 = "sysAppList";//Tag string for the system appList log
         //String tag3 = "appPermissions"; //Tag string for the appPermissions log
+
         String appName = " ";
         String appPermissions = " ";
 
-        PackageManager pm = getPackageManager(); //get the object of packageManager
+        // Get the object of packageManager
+        PackageManager pm = getPackageManager();
 
+        // Obtain list of installed applications
         List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+
         //list
         String tag = "AppPermissions";//Tag string for the non system appList log
         for (ApplicationInfo applicationInfo : packages) {
-            //print the name of the application
+            // Print the name of the application
             Log.d("--------Application"," : " + applicationInfo.packageName +"----");
-            //
 
+            // Get permission of current application
             try {
-                //get the information of the package
+                // Get the overall information of the package
                 PackageInfo packageInfo = pm.getPackageInfo(applicationInfo.packageName, PackageManager.GET_PERMISSIONS);
 
-                //Get Permissions
+                // Get Permissions
                 String[] requestedPermissions = packageInfo.requestedPermissions;
 
                 if(requestedPermissions != null) {
-                    //print the permissions of the package
+                    // Print the permissions of the package
                     for (int i = 0; i < requestedPermissions.length; i++) {
                         Log.d(tag, requestedPermissions[i]);
                     }
