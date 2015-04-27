@@ -1,7 +1,9 @@
 package com.compsci702project.compsci702project;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -9,6 +11,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionGroupInfo;
 import android.graphics.drawable.Drawable;
+import android.os.FileObserver;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,20 +43,12 @@ public class MainActivity extends ActionBarActivity {
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-                try {
-                    //listAllActivities();
-                    getAppPermissions();
-                    //getApplicationList();
+                Intent fileObserverIntentService = new Intent(MainActivity.this, FileObserverIntentService.class);
 
-                } catch(PackageManager.NameNotFoundException e){}
-
-                //exit this application when the button is clicked
-                //finish();
-                //System.exit(0);
-
+                startService(fileObserverIntentService);
+                Log.d("", "clicked");
             }
         });
-
     }
 
 
@@ -182,6 +177,9 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
+
+
+
 
 
 
