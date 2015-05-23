@@ -1,5 +1,6 @@
 package com.compsci702project.compsci702project;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -40,6 +41,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 //import com.vogella.java.library.gson;
@@ -242,6 +244,7 @@ public class MainActivity extends ActionBarActivity {
                         JSONObject jsonObject= new JSONObject();
                         try {
                             jsonObject.put("date", currentDateandTime);
+                            jsonObject.put("app", getAppName(Integer.parseInt(splited[1])));
                             jsonObject.put("command", splited[0]);
                             jsonObject.put("pid", splited[1]);
                             jsonObject.put("uid", splited[2]);
@@ -272,6 +275,7 @@ public class MainActivity extends ActionBarActivity {
                 //HUMAN READABLE TEXT ================================================================================================
                 if(saveMode == "text"){
                     myOutWriter_text.append("Date: " + currentDateandTime + "\n" +
+                            "App: " + getAppName(Integer.parseInt(splited[1])) + "\n" +
                             "Command: " + splited[0] + "\n" +
                             "PID: " + splited[1] + "\n" +
                             "UID: " + splited[2] + "\n" +
@@ -426,6 +430,36 @@ public class MainActivity extends ActionBarActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+
+
+    private String getAppName(int pID)
+    {
+        String processName = "";
+        ActivityManager am = (ActivityManager)this.getSystemService(ACTIVITY_SERVICE);
+        List l = am.getRunningAppProcesses();
+        Iterator i = l.iterator();
+        PackageManager pm = this.getPackageManager();
+        while(i.hasNext())
+        {
+            ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo)(i.next());
+            try
+            {
+                if(info.pid == pID)
+                {
+                    CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
+                    //Log.d("Process", "Id: "+ info.pid +" ProcessName: "+ info.processName +"  Label: "+c.toString());
+                    //processName = c.toString();
+                    processName = info.processName;
+                }
+            }
+            catch(Exception e)
+            {
+                //Log.d("Process", "Error>> :"+ e.toString());
+            }
+        }
+        return processName;
     }
 
 
