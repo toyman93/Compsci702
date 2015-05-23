@@ -244,7 +244,8 @@ public class MainActivity extends ActionBarActivity {
                         JSONObject jsonObject= new JSONObject();
                         try {
                             jsonObject.put("date", currentDateandTime);
-                            jsonObject.put("app", getAppName(Integer.parseInt(splited[1])));
+                            jsonObject.put("process", getAppName(Integer.parseInt(splited[1])));
+                            jsonObject.put("process", getPackageManager().getNameForUid(Integer.parseInt(splited[2])));
                             jsonObject.put("command", splited[0]);
                             jsonObject.put("pid", splited[1]);
                             jsonObject.put("uid", splited[2]);
@@ -275,7 +276,8 @@ public class MainActivity extends ActionBarActivity {
                 //HUMAN READABLE TEXT ================================================================================================
                 if(saveMode == "text"){
                     myOutWriter_text.append("Date: " + currentDateandTime + "\n" +
-                            "App: " + getAppName(Integer.parseInt(splited[1])) + "\n" +
+                            "Process: " + getAppName(Integer.parseInt(splited[1])) + "\n" +
+                            "App: " + getPackageManager().getNameForUid(Integer.parseInt(splited[2])) + "\n" +
                             "Command: " + splited[0] + "\n" +
                             "PID: " + splited[1] + "\n" +
                             "UID: " + splited[2] + "\n" +
@@ -283,7 +285,6 @@ public class MainActivity extends ActionBarActivity {
                             "File type: " + fileExtension + "\n" +
                             "File size: " + splited[6] + "\n" +
                             "Node: " + splited[7] + "\n" +
-                            "Accessed by: " + "app name" + "\n" +
                             "Was it human access?: " + "no" + "\n\n"
                     );
 
@@ -459,6 +460,7 @@ public class MainActivity extends ActionBarActivity {
                 //Log.d("Process", "Error>> :"+ e.toString());
             }
         }
+
         return processName;
     }
 
