@@ -140,8 +140,23 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="Project Zeus"
         android:theme="@style/AppTheme" >
+<!--        <receiver android:name="com.compsci702project.compsci702project.ContentAccessIntertReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+&lt;!&ndash;                <action android:name="android.intent.action.ACTION_VIEW" />
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.ACTION_OPEN_DOCUMENT" />&ndash;&gt;
+
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.USER_FOREGROUND" />
+                <action android:name="android.intent.action.ACTION_WEB_SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+        </receiver>-->
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >

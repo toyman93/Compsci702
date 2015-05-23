@@ -9,7 +9,14 @@ import android.os.SystemClock;
 import android.text.format.DateFormat;
 import android.util.Log;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -25,39 +32,88 @@ public class FileObserverIntentService extends IntentService {
         public void onEvent(int event, String file) {
 
             if(event == FileObserver.ACCESS || event == FileObserver.DELETE || event == FileObserver.MODIFY || event == FileObserver.OPEN || event == FileObserver.CREATE){
-                AccessHistory accessHistory = new AccessHistory();
 
-                Date now = new Date();
-                accessHistory.setAccessedAt(now);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HH:mm:ss");
+                String currentDateandTime = sdf.format(new Date());
                 //set access type
+                String accessType = "";
+
+
+                if(event== FileObserver.ACCESS){
+                    accessType = "Accesss";
+                }
+                if(event== FileObserver.DELETE){
+                    accessType = "Delete";
+                }
+                if(event== FileObserver.MODIFY){
+                    accessType = "Modify";
+                }
+                if(event== FileObserver.OPEN){
+                    accessType = "Open";
+                }
+
+                if(event == FileObserver.CREATE){ // check if its a "create" and not equal to .probe because thats created every time camera is launched
+                    accessType = "Create";
+                }
+
                 //set accessed file name
+                String accessedFileName = file;
+
                 //set accessed file type
+                String accessedFileType = file.substring(file.lastIndexOf('.') + 1);
 
-                //Name of the app that accessed the file is yet unknown
-                //TODO: save the access information as AccessHistory object and store it in db
-            }
+                String accessedDate = currentDateandTime;
+
+                //save to file
+                File root = android.os.Environment.getExternalStorageDirectory();
+                File dir = new File (root.getAbsolutePath() + "/se702");
+                if(!dir.exists()){
+                    dir.mkdirs();
+                }
+
+                File file_fileObserver = new File(dir, "fileAccessMonitor.txt");
+                if(!file_fileObserver.exists()){
+                    try {
+                        file_fileObserver.createNewFile();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
 
-            if(event== FileObserver.ACCESS){
-                Log.d(":::ACCESSED:::", file);
-            }
-            if(event== FileObserver.DELETE){
-                Log.d(":::DELETED:::", file);
-            }
-            if(event== FileObserver.MODIFY){
-                Log.d(":::MODIFIED:::", file);
-            }
-            if(event== FileObserver.OPEN){
-                Log.d(":::CREATED:::", file);
-            }
+                }
 
-            if(event == FileObserver.CREATE){ // check if its a "create" and not equal to .probe because thats created every time camera is launched
-                Log.d(":::CREATED:::", file);
+                FileOutputStream f = null;
+                try {
+                    f = new FileOutputStream(file_fileObserver, true);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                OutputStreamWriter myOutWriter = new OutputStreamWriter(f);
+
+                try {
+                    myOutWriter.append("Date: " + currentDateandTime + "\n" +
+                                    "Access type: " + accessType + "\n" +
+                                    "File path: " + accessedFileName + "\n" +
+                                    "File type: " + accessedFileType + "\n\n"
+                    );
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    myOutWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    f.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
             }
-
-            //implement other events as well (modified, opened, etc)
-            //http://developer.android.com/reference/android/os/FileObserver.html
-
         }
     };
 
@@ -69,12 +125,7 @@ public class FileObserverIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-
         Log.d("", "onHandleIntent()");
         observer.startWatching();
-/*        synchronized (this)
-        {
-            startActivity(new Intent(this, com.compsci702project.compsci702project.AlertDialog.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        }*/
     }
 }

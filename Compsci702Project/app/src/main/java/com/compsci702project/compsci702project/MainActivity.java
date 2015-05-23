@@ -1,10 +1,12 @@
 package com.compsci702project.compsci702project;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -19,14 +21,37 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
+//import com.vogella.java.library.gson;
+
 
 
 public class MainActivity extends ActionBarActivity {
 
     Context cont;
     private ContextWrapper _context = new ContextWrapper(cont);
+    private static boolean isFileObserverMonitoring = false;
+
 
     // Initialize activity
     @Override
@@ -36,21 +61,246 @@ public class MainActivity extends ActionBarActivity {
         // Set view as res.layout.activity_main.xml
         setContentView(R.layout.activity_main);
 
-        // Create button, attach it to button with id buttontest
-        final Button button = (Button) findViewById(R.id.buttontest);
 
+        //SCAN AND SAVE AS JSON ====================================================================================
+        // Create button, attach it to button with id buttontest
+        final Button button = (Button) findViewById(R.id.buttonScanCurrentOpenFiles);
         // Button listener
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
-                Intent fileObserverIntentService = new Intent(MainActivity.this, FileObserverIntentService.class);
-
-                startService(fileObserverIntentService);
-                Log.d("", "clicked");
+                //Intent broadcastR = new Intent(MainActivity.this, BroadcastReceiverIntentService.class);
+                //startService(broadcastR);
+                String output = ExecutelsofCommand("json");
+                Log.d("", output);
             }
         });
+
+
+
+
+        //SCAN AND SAVE AS HUMAN READABLE TEXT ====================================================================================
+        final Button buttonSaveAsReadableText = (Button) findViewById(R.id.buttonScanAndSaveAsText);
+        // Button listener
+        buttonSaveAsReadableText.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                String output = ExecutelsofCommand("text");
+                Log.d("", output);
+            }
+        });
+
+
+
+
+        //VIEW ACCESS HISTORY ====================================================================================
+        final Button button_view = (Button) findViewById(R.id.buttonViewAccessHistory);
+        // Button listener
+        button_view.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.d("", "view");
+                TextView accessHistoryTextView = (TextView)findViewById(R.id.accessHistoryTextView);
+                File root = android.os.Environment.getExternalStorageDirectory();
+                File dir = new File (root.getAbsolutePath() + "/se702");
+                if(!dir.exists()){
+                    dir.mkdirs();
+                }
+
+                File file = new File(dir, "accessHistoryLog_text.txt");
+                if(!file.exists()){
+                    try {
+                        file.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                try {
+                        StringBuilder text = new StringBuilder();
+
+                            BufferedReader br = new BufferedReader(new FileReader(file));
+                            String line;
+                            while ((line = br.readLine()) != null) {
+                                text.append(line);
+                                text.append('\n');
+                            }
+
+                        accessHistoryTextView.setText(text);
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+        });
+
+
+
+        //SCAN AND SAVE AS HUMAN READABLE TEXT ====================================================================================
+        final Button buttonStartWatch = (Button) findViewById(R.id.buttonStartWatch);
+        // Button listener
+        buttonStartWatch.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent fileObserverIntentService = new Intent(MainActivity.this, FileObserverIntentService.class);
+
+                if(isFileObserverMonitoring == false){
+                    startService(fileObserverIntentService);
+                    isFileObserverMonitoring = true;
+                    buttonStartWatch.setText("Tap to stop");
+                }
+                else{
+                    stopService(fileObserverIntentService);
+                    isFileObserverMonitoring = false;
+                    buttonStartWatch.setText("Start monitoring (File observer)");
+                }
+            }
+        });
+
+
     }
 
+
+    public String ExecutelsofCommand(String saveMode){
+        String out = new String();
+        try {
+            //Process p = Runtime.getRuntime().exec("/system/bin/sh");
+            //Process p = Runtime.getRuntime().exec(new String[]{"su", "-c", "lsof"});
+            //Process p = Runtime.getRuntime().exec(new String[]{"su", "-s"});
+            //Process p = Runtime.getRuntime().exec("sh");
+            Process p = Runtime.getRuntime().exec("su");
+            DataOutputStream stdin = new DataOutputStream(p.getOutputStream());
+            //stdin.writeBytes("ls -l  /proc/*/fd echo $?\n"); // \n executes the command
+            //stdin.writeBytes("su\n"); // \n executes the command
+            //stdin.writeBytes("su --shell\n"); // \n executes the
+            stdin.writeBytes("lsof /sdcard\n"); // \n executes the
+            stdin.flush();
+            //stdin.writeBytes("/proc/*/fd\n");
+            InputStream stdout = p.getInputStream();
+
+            byte[] buffer = new byte[5000];
+            int read;
+            //read method will wait forever if there is nothing in the stream
+            // so we need to read it in another way than while((read=stdout.read(buffer))>0)
+            while(true){
+                read = stdout.read(buffer);
+                out += new String(buffer, 0, read);
+                if(read<5000){
+                    //we have read everything
+                    break;
+                }
+            }
+
+            File root = android.os.Environment.getExternalStorageDirectory();
+            File dir = new File (root.getAbsolutePath() + "/se702");
+            if(!dir.exists()){
+                dir.mkdirs();
+            }
+
+            File file_json = new File(dir, "accessHistoryLog_json.txt");
+            if(!file_json.exists()){
+                file_json.createNewFile();
+            }
+
+            File file_text = new File(dir, "accessHistoryLog_text.txt");
+            if(!file_text.exists()){
+                file_text.createNewFile();
+            }
+
+
+            FileOutputStream f_json = new FileOutputStream(file_json, true);
+            OutputStreamWriter myOutWriter_json = new OutputStreamWriter(f_json);
+
+            FileOutputStream f_text = new FileOutputStream(file_text, true);
+            OutputStreamWriter myOutWriter_text = new OutputStreamWriter(f_text);
+
+            Scanner scanner = new Scanner(out);
+            int lineNo = 1;
+            while (scanner.hasNextLine()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HH:mm:ss");
+                String currentDateandTime = sdf.format(new Date());
+                String line = scanner.nextLine();
+                if(lineNo ==1){
+                    //skipping first line because they're just headers
+                    line = scanner.nextLine();
+                    lineNo++;
+                }
+                // process the line
+                String[] splited = line.split("\\s+");
+
+                int arrayLength = splited.length;
+                String filePath = splited[8];
+                for(int i = 1 ; i+8 <= arrayLength-1 ; i++){
+                    filePath = filePath + splited[8+i];
+                }
+
+                String fileExtension = filePath.substring(filePath.lastIndexOf('.') + 1);
+                if(fileExtension.length() > 4){
+                    fileExtension = "none";
+                }
+
+
+                //JSON ================================================================================================
+                if(saveMode == "json"){
+                    try {
+                        JSONObject jsonObject= new JSONObject();
+                        try {
+                            jsonObject.put("date", currentDateandTime);
+                            jsonObject.put("command", splited[0]);
+                            jsonObject.put("pid", splited[1]);
+                            jsonObject.put("uid", splited[2]);
+                            jsonObject.put("filesize", splited[6]);
+                            jsonObject.put("node", splited[7]);
+                            jsonObject.put("filePath", filePath);
+                            jsonObject.put("fileExtension", fileExtension);
+                            jsonObject.put("isHumanAccess", true);
+
+                            myOutWriter_json.append(jsonObject.toString());
+                            myOutWriter_json.append("\n");
+                            myOutWriter_json.append("#");
+                            myOutWriter_json.append("\n");
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Log.d("", "******* File not found. Did you" +  " add a WRITE_EXTERNAL_STORAGE permission to the   manifest?");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+                //HUMAN READABLE TEXT ================================================================================================
+                if(saveMode == "text"){
+                    myOutWriter_text.append("Date: " + currentDateandTime + "\n" +
+                            "Command: " + splited[0] + "\n" +
+                            "PID: " + splited[1] + "\n" +
+                            "UID: " + splited[2] + "\n" +
+                            "File path: " + filePath + "\n" +
+                            "File type: " + fileExtension + "\n" +
+                            "File size: " + splited[6] + "\n" +
+                            "Node: " + splited[7] + "\n" +
+                            "Accessed by: " + "app name" + "\n" +
+                            "Was it human access?: " + "no" + "\n\n"
+                    );
+
+                }
+
+                lineNo++;
+            }
+            scanner.close();
+            myOutWriter_json.close();
+            myOutWriter_text.close();
+            f_json.close();
+            f_text.close();
+
+
+            Log.d("lsof:", out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return out;
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
