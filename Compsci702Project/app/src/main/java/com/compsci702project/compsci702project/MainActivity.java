@@ -15,7 +15,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PermissionGroupInfo;
 import android.graphics.drawable.Drawable;
 import android.os.FileObserver;
-import android.support.v7.app.ActionBarActivity;
+//import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -48,7 +49,7 @@ import java.util.Scanner;
 
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 
     Context cont;
     private ContextWrapper _context = new ContextWrapper(cont);

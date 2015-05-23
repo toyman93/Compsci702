@@ -140,8 +140,8 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Project Zeus"
-        android:theme="@style/AppTheme" >
+        android:label="702 Project"
+        android:theme="@style/CustomActionBarTheme" >
 <!--        <receiver android:name="com.compsci702project.compsci702project.ContentAccessIntertReceiver"
             android:enabled="true"
             android:exported="true">
