@@ -254,6 +254,8 @@ public class MainActivity extends Activity {
                             jsonObject.put("node", splited[7]);
                             jsonObject.put("filePath", filePath);
                             jsonObject.put("fileExtension", fileExtension);
+
+
                             jsonObject.put("isHumanAccess", true);
 
                             myOutWriter_json.append(jsonObject.toString());
@@ -465,10 +467,20 @@ public class MainActivity extends Activity {
         return processName;
     }
 
+    public void getCurrentApp(View v) {
+        Log.d("Message2", "Button2 Clicked");
 
+        //Run every X Seconds to check current opened activity
+        h.postDelayed(new Runnable(){
+            public void run(){
+                ActivityManager am = (ActivityManager)getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
 
+                List<ActivityManager.RunningAppProcessInfo> tasks = am.getRunningAppProcesses();
+                String currentTask = tasks.get(0).processName + "";
+                Log.d("CurrentTask : ", currentTask);
 
-
-
-
+                h.postDelayed(this, delay);
+            }
+        }, delay);
+    }
 }
