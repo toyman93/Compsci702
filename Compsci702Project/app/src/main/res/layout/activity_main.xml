@@ -8,24 +8,37 @@
 
 
     <Button
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_width="150dp"
+        android:layout_height="26dp"
         android:text="View access history"
         android:id="@+id/buttonViewAccessHistory"
         style="@style/Base.Theme.AppCompat.Light"
         android:background="#ff66c1da"
         android:backgroundTintMode="src_over"
         android:textColor="#ffffffff"
-        android:textSize="@dimen/abc_text_size_body_2_material" />
+        android:textSize="12sp" />
+
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="26dp"
+        android:text="Remove all logs"
+        android:id="@+id/buttonRemoveAll"
+        style="@style/Base.Theme.AppCompat.Light"
+        android:background="#ffa34743"
+        android:backgroundTintMode="src_over"
+        android:textColor="#ffffffff"
+        android:textSize="@dimen/abc_text_size_caption_material"
+        android:layout_x="180dp"
+        android:layout_y="0dp" />
 
     <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="350dp"
+            android:layout_height="345dp"
             android:id="@+id/scrollView_history"
             android:fillViewport="false"
             android:clickable="true"
-        android:layout_x="3dp"
-        android:layout_y="40dp">
+        android:layout_x="0dp"
+        android:layout_y="35dp">
 
         <TextView
             android:id="@+id/accessHistoryTextView"
@@ -36,9 +49,9 @@
 
 
         <Button
-            android:layout_width="185dp"
-            android:layout_height="35dp"
-            android:text="Scan currently open files and save as json"
+            android:layout_width="150dp"
+            android:layout_height="25dp"
+            android:text="Save as json"
             android:id="@+id/buttonScanCurrentOpenFiles"
             style="@style/Base.Theme.AppCompat.Light"
             android:background="#ff66c1da"
@@ -47,12 +60,12 @@
             android:textSize="@dimen/abc_text_size_caption_material"
             android:clickable="true"
             android:layout_x="0dp"
-            android:layout_y="445dp" />
+            android:layout_y="460dp" />
 
     <Button
-        android:layout_width="185dp"
-        android:layout_height="35dp"
-        android:text="Start monitoring (File observer)"
+        android:layout_width="150dp"
+        android:layout_height="25dp"
+        android:text="Start monitoring"
         android:id="@+id/buttonStartWatch"
         style="@style/Base.Theme.AppCompat.Light"
         android:background="#ff66c1da"
@@ -61,36 +74,41 @@
         android:textSize="@dimen/abc_text_size_caption_material"
         android:clickable="true"
         android:layout_x="0dp"
-        android:layout_y="400dp" />
+        android:layout_y="405dp" />
 
 
 
 
         <Button
-            android:layout_width="120dp"
-            android:layout_height="35dp"
-            android:text="Scan and save as text"
+            android:layout_width="150dp"
+            android:layout_height="25dp"
+            android:text="Save as text"
             android:id="@+id/buttonScanAndSaveAsText"
             style="@style/Base.Theme.AppCompat.Light"
             android:background="#ff66c1da"
             android:backgroundTintMode="src_over"
             android:textColor="#ffffffff"
             android:textSize="@dimen/abc_text_size_caption_material"
-            android:layout_x="210dp"
-            android:layout_y="445dp" />
+            android:layout_x="180dp"
+            android:layout_y="460dp" />
 
-    <Button
-        android:layout_width="120dp"
-        android:layout_height="35dp"
-        android:text="Stop monitoring"
-        android:id="@+id/buttonStopMonitoring"
-        style="@style/Base.Theme.AppCompat.Light"
-        android:background="#ffa34743"
-        android:backgroundTintMode="src_over"
-        android:textColor="#ffffffff"
-        android:textSize="@dimen/abc_text_size_caption_material"
-        android:layout_x="210dp"
-        android:layout_y="400dp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="File access auditor (requires root)"
+        android:id="@+id/textView"
+        android:layout_x="0dp"
+        android:layout_y="440dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Real time file access monitor"
+        android:id="@+id/textView2"
+        android:layout_x="0dp"
+        android:layout_y="385dp" />
 
 
 </AbsoluteLayout>

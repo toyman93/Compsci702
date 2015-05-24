@@ -18,6 +18,7 @@ import android.os.FileObserver;
 //import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,6 +55,9 @@ public class MainActivity extends Activity {
     Context cont;
     private ContextWrapper _context = new ContextWrapper(cont);
     private static boolean isFileObserverMonitoring = false;
+    private Handler h = new Handler();
+    private int delay = 15000;
+
 
 
     // Initialize activity
@@ -86,8 +90,14 @@ public class MainActivity extends Activity {
         // Button listener
         buttonSaveAsReadableText.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String output = ExecutelsofCommand("text");
-                Log.d("", output);
+
+                h.postDelayed(new Runnable(){
+                    public void run(){
+                        String output = ExecutelsofCommand("text");
+                        h.postDelayed(this, delay);
+                    }
+                }, delay);
+
             }
         });
 
@@ -125,6 +135,9 @@ public class MainActivity extends Activity {
                                 text.append(line);
                                 text.append('\n');
                             }
+                    if(text.length() == 0){
+                        text.append("Nothing to show");
+                    }
 
                         accessHistoryTextView.setText(text);
 
@@ -151,30 +164,53 @@ public class MainActivity extends Activity {
                 else{
                     stopService(fileObserverIntentService);
                     isFileObserverMonitoring = false;
-                    buttonStartWatch.setText("Start monitoring (File observer)");
+                    buttonStartWatch.setText("Start monitoring");
                 }
             }
         });
+
+
+
+        //REMOVE ALL LOG FILES ====================================================================================
+        final Button buttonRemoveAll = (Button) findViewById(R.id.buttonRemoveAll);
+        // Button listener
+        buttonRemoveAll.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.d("", "remove");
+                File root = android.os.Environment.getExternalStorageDirectory();
+                File dir = new File (root.getAbsolutePath() + "/se702");
+                File file_json = new File(dir, "accessHistoryLog_json.txt");
+                File file_text = new File(dir, "accessHistoryLog_text.txt");
+                File file_fileObserver = new File(dir, "fileAccessMonitor.txt");
+                if(dir.exists()){
+                    if(file_json.exists()){
+                        file_json.delete();
+                    }
+                    if(file_text.exists()){
+                        file_text.delete();
+                    }
+                    if(file_fileObserver.exists()){
+                        file_fileObserver.delete();
+                    }
+                }
+            }
+        });
+
 
 
     }
 
 
     public String ExecutelsofCommand(String saveMode){
+        ActivityManager am = (ActivityManager)getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
         String out = new String();
         try {
-            //Process p = Runtime.getRuntime().exec("/system/bin/sh");
-            //Process p = Runtime.getRuntime().exec(new String[]{"su", "-c", "lsof"});
-            //Process p = Runtime.getRuntime().exec(new String[]{"su", "-s"});
-            //Process p = Runtime.getRuntime().exec("sh");
             Process p = Runtime.getRuntime().exec("su");
             DataOutputStream stdin = new DataOutputStream(p.getOutputStream());
-            //stdin.writeBytes("ls -l  /proc/*/fd echo $?\n"); // \n executes the command
-            //stdin.writeBytes("su\n"); // \n executes the command
-            //stdin.writeBytes("su --shell\n"); // \n executes the
+
             stdin.writeBytes("lsof /sdcard\n"); // \n executes the
             stdin.flush();
-            //stdin.writeBytes("/proc/*/fd\n");
+
             InputStream stdout = p.getInputStream();
 
             byte[] buffer = new byte[5000];
@@ -206,12 +242,27 @@ public class MainActivity extends Activity {
                 file_text.createNewFile();
             }
 
-
             FileOutputStream f_json = new FileOutputStream(file_json, true);
             OutputStreamWriter myOutWriter_json = new OutputStreamWriter(f_json);
 
             FileOutputStream f_text = new FileOutputStream(file_text, true);
             OutputStreamWriter myOutWriter_text = new OutputStreamWriter(f_text);
+
+            List<ActivityManager.RunningAppProcessInfo> tasks = am.getRunningAppProcesses();
+            int currentPID = tasks.get(0).pid;
+            int currentUID = tasks.get(0).uid;
+            String currentProcessName = tasks.get(0).processName;
+            Log.d("", "=======================================");
+            Log.d("current process", currentProcessName);
+            Log.d("current pid", currentPID + "");
+            Log.d("", "=======================================");
+
+            int previousPID = tasks.get(1).pid;
+            int previousUID = tasks.get(1).uid;
+            String previousProcessName = tasks.get(1).processName;
+
+
+
 
             Scanner scanner = new Scanner(out);
             int lineNo = 1;
@@ -238,6 +289,12 @@ public class MainActivity extends Activity {
                     fileExtension = "none";
                 }
 
+                boolean isHumanAcess = false;
+                if(Integer.parseInt(splited[1]) == currentPID || Integer.parseInt(splited[1]) == previousPID){
+                    isHumanAcess = true;
+                }
+
+                Log.d("this process in loop", splited[1]);
 
                 //JSON ================================================================================================
                 if(saveMode == "json"){
@@ -245,7 +302,7 @@ public class MainActivity extends Activity {
                         JSONObject jsonObject= new JSONObject();
                         try {
                             jsonObject.put("date", currentDateandTime);
-                            jsonObject.put("process", getAppName(Integer.parseInt(splited[1])));
+                            jsonObject.put("appName", getAppName(Integer.parseInt(splited[1])));
                             jsonObject.put("process", getPackageManager().getNameForUid(Integer.parseInt(splited[2])));
                             jsonObject.put("command", splited[0]);
                             jsonObject.put("pid", splited[1]);
@@ -254,9 +311,7 @@ public class MainActivity extends Activity {
                             jsonObject.put("node", splited[7]);
                             jsonObject.put("filePath", filePath);
                             jsonObject.put("fileExtension", fileExtension);
-
-
-                            jsonObject.put("isHumanAccess", true);
+                            jsonObject.put("isHumanAccess", isHumanAcess);
 
                             myOutWriter_json.append(jsonObject.toString());
                             myOutWriter_json.append("\n");
@@ -275,7 +330,6 @@ public class MainActivity extends Activity {
                     }
                 }
 
-
                 //HUMAN READABLE TEXT ================================================================================================
                 if(saveMode == "text"){
                     myOutWriter_text.append("Date: " + currentDateandTime + "\n" +
@@ -288,11 +342,9 @@ public class MainActivity extends Activity {
                             "File type: " + fileExtension + "\n" +
                             "File size: " + splited[6] + "\n" +
                             "Node: " + splited[7] + "\n" +
-                            "Was it human access?: " + "no" + "\n\n"
+                            "Was it human access?: " + isHumanAcess + "\n\n"
                     );
-
                 }
-
                 lineNo++;
             }
             scanner.close();
@@ -301,14 +353,14 @@ public class MainActivity extends Activity {
             f_json.close();
             f_text.close();
 
-
             Log.d("lsof:", out);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return out;
-
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -317,7 +369,9 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    @Override
+
+
+/*    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -330,7 +384,9 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
+    }*/
+
+
 
 
     //Method which shows an example of using package manager to get all installed packages on this device
@@ -353,14 +409,15 @@ public class MainActivity extends Activity {
         }
     }
 
+
+
+
     //--Charindu --
     //This method gets the list of all apps installed in the device
     //and logs attributes of the apps
     //Additionally logs permissions of those apps in a separate log -Doesn't work for now.
     public void getApplicationList() throws PackageManager.NameNotFoundException {
         String tag1 = "AppList";//Tag string for the non system appList log
-        //String tag2 = "sysAppList";//Tag string for the system appList log
-        //String tag3 = "appPermissions"; //Tag string for the appPermissions log
         String appName = " ";
         String pName = " ";
         String versionName = " ";
@@ -371,13 +428,6 @@ public class MainActivity extends Activity {
         List<PackageInfo> packs = getPackageManager().getInstalledPackages(0);
         for (int i = 0; i < packs.size(); i++) {
             PackageInfo p = packs.get(i);
-            /*if (p.versionName == null)
-            {
-                //logs the non system app list
-                Log.i(tag2,p.applicationInfo.loadLabel(getPackageManager()).toString()
-                        + "\t" + p.packageName + "\t");
-                continue ;
-            }*/
             //assign the app info into corresponding variables
             appName = p.applicationInfo.loadLabel(getPackageManager()).toString();
             pName = p.packageName;
@@ -388,19 +438,14 @@ public class MainActivity extends Activity {
             //appPermissions = p.permissions.toString();
             //logs the non system app list
             Log.v(tag1, appName + "\t" + pName + "\t" + versionName + "\t" + versionCode);
-
-            //logs the permission list
-            //Log.v(tag3,appPermissions);
-
-
         }
     }
 
+
+
+
     public void getAppPermissions() throws PackageManager.NameNotFoundException
     {
-        //String tag2 = "sysAppList";//Tag string for the system appList log
-        //String tag3 = "appPermissions"; //Tag string for the appPermissions log
-
         String appName = " ";
         String appPermissions = " ";
 
@@ -467,9 +512,10 @@ public class MainActivity extends Activity {
         return processName;
     }
 
-    public void getCurrentApp(View v) {
-        Log.d("Message2", "Button2 Clicked");
 
+
+
+    private void getCurrentApp(View v) {
         //Run every X Seconds to check current opened activity
         h.postDelayed(new Runnable(){
             public void run(){

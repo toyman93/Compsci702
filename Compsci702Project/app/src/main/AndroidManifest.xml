@@ -167,12 +167,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".AlertDialog"
-            android:label="@string/title_activity_alert_dialog"
-            android:theme="@android:style/Theme.Dialog">
-
-        </activity>
         <service android:enabled="true" android:name="com.compsci702project.compsci702project.FileObserverIntentService"></service>
     </application>
 

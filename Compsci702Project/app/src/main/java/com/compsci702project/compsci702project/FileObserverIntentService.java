@@ -25,7 +25,7 @@ import java.util.Date;
 public class FileObserverIntentService extends IntentService {
 
 
-    RecursiveFileObserver observer = new RecursiveFileObserver(android.os.Environment.getExternalStorageDirectory().toString(), 4095) { // set up a file observer to watch this directory on sd card
+    EnhancedFileObserver observer = new EnhancedFileObserver(android.os.Environment.getExternalStorageDirectory().toString(), 4095) { // set up a file observer to watch this directory on sd card
 
         //this method must be implemented in order to use FileObserver
         @Override

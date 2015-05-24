@@ -9,7 +9,7 @@ import java.util.Stack;
 /**
  * Created by Kyungmo on 4/15/2015.
  */
-public class RecursiveFileObserver extends FileObserver {
+public class EnhancedFileObserver extends FileObserver {
 
 
     public static int CHANGES_ONLY = CLOSE_WRITE | MOVE_SELF | MOVED_FROM;
@@ -18,11 +18,11 @@ public class RecursiveFileObserver extends FileObserver {
     String mPath;
     int mMask;
 
-    public RecursiveFileObserver(String path) {
+    public EnhancedFileObserver(String path) {
         this(path, ALL_EVENTS);
     }
 
-    public RecursiveFileObserver(String path, int mask) {
+    public EnhancedFileObserver(String path, int mask) {
         super(path, mask);
         mPath = path;
         mMask = mask;
@@ -79,7 +79,7 @@ public class RecursiveFileObserver extends FileObserver {
         @Override
         public void onEvent(int event, String path) {
             String newPath = mPath + "/" + path;
-            RecursiveFileObserver.this.onEvent(event, newPath);
+            EnhancedFileObserver.this.onEvent(event, newPath);
         }
 
     }

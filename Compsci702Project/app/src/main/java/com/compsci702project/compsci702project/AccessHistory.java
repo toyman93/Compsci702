@@ -17,15 +17,6 @@ public class AccessHistory {
     }
 
 
-    private String AppName;
-    public void setAppName(String appName){
-        this.AppName = appName;
-    }
-    public String getAppName(){
-        return this.AppName;
-    }
-
-
     private String AccessedFileName;
     public void setAccessedFileName(String accessedFileName){
         this.AccessedFileName = accessedFileName;
