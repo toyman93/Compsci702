@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
                 Log.d("", "view");
                 TextView accessHistoryTextView = (TextView)findViewById(R.id.accessHistoryTextView);
                 File root = android.os.Environment.getExternalStorageDirectory();
-                File dir = new File (root.getAbsolutePath() + "/se702");
+                File dir = new File (root.getAbsolutePath() + "/cs702");
                 if(!dir.exists()){
                     dir.mkdirs();
                 }
@@ -178,7 +178,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 Log.d("", "remove");
                 File root = android.os.Environment.getExternalStorageDirectory();
-                File dir = new File (root.getAbsolutePath() + "/se702");
+                File dir = new File (root.getAbsolutePath() + "/cs702");
                 File file_json = new File(dir, "accessHistoryLog_json.txt");
                 File file_text = new File(dir, "accessHistoryLog_text.txt");
                 File file_fileObserver = new File(dir, "fileAccessMonitor.txt");
@@ -227,7 +227,7 @@ public class MainActivity extends Activity {
             }
 
             File root = android.os.Environment.getExternalStorageDirectory();
-            File dir = new File (root.getAbsolutePath() + "/se702");
+            File dir = new File (root.getAbsolutePath() + "/cs702");
             if(!dir.exists()){
                 dir.mkdirs();
             }
@@ -515,7 +515,7 @@ public class MainActivity extends Activity {
 
 
 
-    private void getCurrentApp(View v) {
+        private void getCurrentApp(View v) {
         //Run every X Seconds to check current opened activity
         h.postDelayed(new Runnable(){
             public void run(){

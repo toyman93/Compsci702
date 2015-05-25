@@ -33,6 +33,7 @@ public class FileObserverIntentService extends IntentService {
 
             if(event == FileObserver.ACCESS || event == FileObserver.DELETE || event == FileObserver.MODIFY || event == FileObserver.OPEN || event == FileObserver.CREATE){
 
+                Log.d("", "FileObserver");
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HH:mm:ss");
                 String currentDateandTime = sdf.format(new Date());
                 //set access type
@@ -66,7 +67,7 @@ public class FileObserverIntentService extends IntentService {
 
                 //save to file
                 File root = android.os.Environment.getExternalStorageDirectory();
-                File dir = new File (root.getAbsolutePath() + "/se702");
+                File dir = new File (root.getAbsolutePath() + "/cs702");
                 if(!dir.exists()){
                     dir.mkdirs();
                 }
